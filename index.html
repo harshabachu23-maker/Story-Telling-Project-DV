@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Performance | Data Story</title>
+<style>
+:root{--navy:#14213d;--blue:#2563eb;--teal:#0f9d8a;--ink:#172033;--muted:#64748b;--bg:#f4f7fb;--card:#fff;--line:#e5eaf2}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+header{background:linear-gradient(120deg,#14213d,#1d4e89);color:#fff;padding:24px max(5vw,20px) 34px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:35px}
+.brand{font-weight:800;letter-spacing:.3px}.navlinks{display:flex;gap:16px;flex-wrap:wrap}.navlinks a{color:#dce8ff;text-decoration:none;font-size:14px}
+.hero{max-width:1100px;margin:auto}.eyebrow{color:#9bd9d1;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.08;margin:10px 0 12px;max-width:760px}
+.hero p{max-width:760px;color:#dce8ff;font-size:17px}.tag{display:inline-block;border:1px solid #ffffff55;border-radius:30px;padding:6px 12px;margin:8px 6px 0 0;font-size:12px}
+main{max-width:1100px;margin:28px auto;padding:0 18px}.section{margin:30px 0 38px}.section-head{margin-bottom:16px}.section-head small{color:var(--blue);font-weight:800;letter-spacing:1px;text-transform:uppercase}.section-head h2{margin:4px 0;font-size:25px}.section-head p{margin:0;color:var(--muted)}
+.filters{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--card);padding:15px;border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+label{font-size:13px;color:var(--muted);font-weight:700}select,input{display:block;margin-top:5px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);min-width:150px}
+button{border:0;background:var(--blue);color:white;padding:11px 15px;border-radius:9px;font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 5px 20px #14213d08}
+.kpi-label{font-size:13px;color:var(--muted)}.kpi{font-size:29px;font-weight:800;margin-top:4px;color:var(--navy)}.kpi-note{font-size:12px;color:var(--muted)}
+.story{background:#eaf2ff;border-left:4px solid var(--blue);padding:14px 16px;border-radius:10px;margin-top:14px;color:#23395d}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.chart-card{min-width:0}.chart-card h3{margin:0 0 8px;font-size:17px}.chart-card p{color:var(--muted);font-size:13px;margin:0 0 12px}
+canvas{width:100%;height:270px;display:block}.legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.callout{padding:18px;border-radius:14px;background:#fff8e7;border:1px solid #f5dfaa}.callout h3{margin:0 0 6px}.callout p{margin:0;color:#6c5730}
+ul.actions{padding-left:21px}ul.actions li{margin:9px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);background:#f8fafc}
+.tablewrap{overflow:auto}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#e8f1ff;color:#1d4ed8;font-weight:700}
+footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.navlinks{gap:10px}.navlinks a{font-size:12px}canvas{height:240px}}
+@media(max-width:390px){.grid{grid-template-columns:1fr 1fr}.kpi{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+<nav><div class="brand">🎓 STUDENT INSIGHTS</div><div class="navlinks"><a href="#overview">Overview</a><a href="#subjects">Subjects</a><a href="#attendance">Attendance</a><a href="#actions">Actions</a></div></nav>
+<div class="hero"><div class="eyebrow">Data visualization • Storytelling project</div>
+<h1>Are our students learning effectively?</h1>
+<p>Explore the story behind student marks. This dashboard looks at academic performance, attendance and daily study habits to identify where students may need support.</p>
+<span class="tag">Interactive dashboard</span><span class="tag">Sample dataset</span><span class="tag">Student-friendly insights</span></div>
+</header>
+<main>
+<section class="section" id="overview">
+<div class="section-head"><small>Chapter 01 • The big picture</small><h2>How are students performing overall?</h2><p>Start with the key numbers, then explore what may be influencing them.</p></div>
+<div class="filters">
+<label>Class<select id="classFilter"><option>All classes</option></select></label>
+<label>Minimum attendance <span id="attLabel">0%</span><input id="attFilter" type="range" min="0" max="100" value="0"></label>
+<button id="reset">Reset filters</button>
+</div>
+<div class="grid">
+<div class="card"><div class="kpi-label">Students included</div><div class="kpi" id="count">120</div><div class="kpi-note">After selected filters</div></div>
+<div class="card"><div class="kpi-label">Average marks</div><div class="kpi" id="avg">—</div><div class="kpi-note">Out of 100</div></div>
+<div class="card"><div class="kpi-label">Average attendance</div><div class="kpi" id="attendance">—</div><div class="kpi-note">Percentage</div></div>
+<div class="card"><div class="kpi-label">Study time per day</div><div class="kpi" id="study">—</div><div class="kpi-note">Average hours</div></div>
+</div>
+<div class="story" id="overviewStory">Story: The summary updates when you change the filters.</div>
+</section>
+
+<section class="section" id="subjects">
+<div class="section-head"><small>Chapter 02 • Subject comparison</small><h2>Which subjects need more attention?</h2><p>Compare average marks across subjects instead of looking at one result alone.</p></div>
+<div class="card chart-card"><h3>Average marks by subject</h3><p>Higher bars indicate higher average marks in this sample.</p><canvas id="subjectChart"></canvas><div class="legend" id="subjectLegend"></div></div>
+<div class="story" id="subjectStory"></div>
+</section>
+
+<section class="section" id="attendance">
+<div class="section-head"><small>Chapter 03 • Attendance and learning</small><h2>Does attendance move together with marks?</h2><p>Each dot represents one student. Look for an overall pattern, not a guaranteed rule.</p></div>
+<div class="two">
+<div class="card chart-card"><h3>Attendance vs average marks</h3><p>Students with different attendance percentages.</p><canvas id="attendanceChart"></canvas></div>
+<div class="card chart-card"><h3>Study hours vs average marks</h3><p>Daily study time compared with average marks.</p><canvas id="studyChart"></canvas></div>
+</div>
+<div class="story" id="attendanceStory"></div>
+</section>
+
+<section class="section">
+<div class="section-head"><small>Chapter 04 • Performance groups</small><h2>How are students distributed?</h2><p>Group students by their average marks to understand the overall picture.</p></div>
+<div class="two">
+<div class="card chart-card"><h3>Students in each performance group</h3><canvas id="groupChart"></canvas></div>
+<div class="callout"><h3>What should we investigate next?</h3><p>Find out whether students in lower performance groups need subject tutoring, attendance support, study planning or another kind of help. The charts show patterns; conversations with students help explain them.</p></div>
+</div>
+</section>
+
+<section class="section" id="actions">
+<div class="section-head"><small>Chapter 05 • From insight to action</small><h2>What can the college do next?</h2><p>Turn the observations into practical support and check whether it helps.</p></div>
+<div class="card"><ul class="actions">
+<li><b>Support students who are struggling:</b> arrange mentoring and doubt-clearing sessions.</li>
+<li><b>Improve subject learning:</b> offer extra practice and revision in lower-scoring subjects.</li>
+<li><b>Understand attendance:</b> speak with students about repeated absences and possible barriers.</li>
+<li><b>Build study routines:</b> encourage a realistic, regular timetable rather than last-minute study.</li>
+<li><b>Measure progress:</b> compare results again after support is provided.</li>
+</ul></div>
+</section>
+
+<section class="section">
+<div class="section-head"><small>Explore the data</small><h2>Student records</h2><p>Sample rows from the filtered dataset.</p></div>
+<div class="card tablewrap"><table><thead><tr><th>Student</th><th>Class</th><th>Attendance</th><th>Study hrs/day</th><th>Average marks</th><th>Group</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+</section>
+<div class="callout"><h3>Important note about this project</h3><p>This website uses 120 synthetic sample student records created for demonstration. They are not actual college results. Correlation does not prove cause and effect. Use approved, anonymized real data before making college decisions.</p></div>
+</main>
+<footer>Student Academic Performance • Data Visualization Storytelling Project</footer>
+<script>
+const subjects=["Mathematics","Programming","Data Visualization","Electronics","English"];
+let data=[];
+let seed=42; function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}
+function normal(){return (rand()+rand()+rand()+rand()+rand()+rand()-3)*1.9}
+for(let i=1;i<=120;i++){
+ let cls=["CSE-A","CSE-B","ECE-A","ECE-B"][Math.floor(rand()*4)];
+ let att=Math.max(42,Math.min(100,78+normal()*8));
+ let hrs=Math.max(.5,Math.min(6,2.7+normal()*.7));
+ let base=35+att*.32+hrs*3.2+normal()*5;
+ let marks=subjects.map((s,j)=>Math.round(Math.max(20,Math.min(100,base+normal()*5+(j-2)*1.2))));
+ let avg=marks.reduce((a,b)=>a+b,0)/5;
+ let group=avg<40?"Needs Support":avg<60?"Average":avg<75?"Good":"Excellent";
+ data.push({id:"S"+String(i).padStart(3,"0"),cls,att,hrs,marks,avg,group});
+}
+const $=id=>document.getElementById(id);
+[...new Set(data.map(d=>d.cls))].sort().forEach(c=>{let o=document.createElement("option");o.textContent=c;$("classFilter").appendChild(o)});
+function filtered(){return data.filter(d=>($("classFilter").value==="All classes"||d.cls===$("classFilter").value)&&d.att>=+$("attFilter").value)}
+function mean(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function drawBars(canvasId,labels,values,max=100){
+ const c=$(canvasId),ctx=c.getContext("2d"),w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+ const left=42,right=12,top=12,bottom=48,pw=w-left-right,ph=h-top-bottom;
+ ctx.font="11px Arial";ctx.fillStyle="#64748b";ctx.strokeStyle="#e5eaf2";ctx.lineWidth=1;
+ for(let t=0;t<=4;t++){let y=top+ph-t*ph/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.fillText(Math.round(max*t/4),5,y+4)}
+ let step=pw/labels.length,bw=Math.min(38,step*.58);
+ values.forEach((v,i)=>{let bh=Math.max(0,v/max*ph),x=left+i*step+(step-bw)/2,y=top+ph-bh;ctx.fillStyle="#3478e5";ctx.fillRect(x,y,bw,bh);ctx.fillStyle="#334155";ctx.textAlign="center";ctx.fillText(v.toFixed(0),x+bw/2,y-5);ctx.save();ctx.translate(x+bw/2,top+ph+12);ctx.rotate(-.35);ctx.fillText(labels[i],0,0);ctx.restore()});
+}
+function drawScatter(canvasId,rows,xkey,xmax,xlabel){
+ const c=$(canvasId),ctx=c.getContext("2d"),w=c.clientWidth,h=c.clientHeight,dpr=window.devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+ const l=42,r=12,t=12,b=36,pw=w-l-r,ph=h-t-b;ctx.strokeStyle="#e5eaf2";ctx.fillStyle="#64748b";ctx.font="11px Arial";
+ for(let k=0;k<=4;k++){let y=t+ph-k*ph/4;ctx.beginPath();ctx.moveTo(l,y);ctx.lineTo(w-r,y);ctx.stroke();ctx.fillText(String(k*25),7,y+4)}
+ ctx.fillText(xlabel,w/2-25,h-7);
+ rows.forEach(d=>{let x=l+d[xkey]/xmax*pw,y=t+ph-d.avg/100*ph;ctx.beginPath();ctx.arc(x,y,3.6,0,Math.PI*2);ctx.fillStyle=d.group==="Needs Support"?"#ef8c42":d.group==="Excellent"?"#0f9d8a":"#3478e5";ctx.fill()});
+}
+function drawGroups(rows){let groups=["Needs Support","Average","Good","Excellent"],vals=groups.map(g=>rows.filter(d=>d.group===g).length);drawBars("groupChart",groups,vals,Math.max(10,Math.ceil(Math.max(...vals)/10)*10))}
+function update(){
+ let rows=filtered(),n=rows.length,avg=mean(rows.map(d=>d.avg)),att=mean(rows.map(d=>d.att)),hrs=mean(rows.map(d=>d.hrs));
+ $("attLabel").textContent=$("attFilter").value+"%";$("count").textContent=n;$("avg").textContent=n?avg.toFixed(1):"—";$("attendance").textContent=n?att.toFixed(1)+"%":"—";$("study").textContent=n?hrs.toFixed(1):"—";
+ $("overviewStory").textContent=n?`Story: In this filtered group, ${n} students have average marks of ${avg.toFixed(1)}/100 and average attendance of ${att.toFixed(1)}%. Now explore the subject and habit patterns.`:"No students match these filters. Lower the attendance threshold or choose another class.";
+ let avgs=subjects.map((s,j)=>mean(rows.map(d=>d.marks[j])));drawBars("subjectChart",subjects,avgs,100);
+ let low=avgs.indexOf(Math.min(...avgs)),high=avgs.indexOf(Math.max(...avgs));
+ $("subjectStory").textContent=n?`Story: ${subjects[low]} has the lowest subject average (${avgs[low].toFixed(1)}), while ${subjects[high]} has the highest (${avgs[high].toFixed(1)}). This can help identify where extra practice may be useful.`:"No subject data available.";
+ drawScatter("attendanceChart",rows,"att",100,"Attendance (%)");drawScatter("studyChart",rows,"hrs",6,"Study hours/day");drawGroups(rows);
+ let mx=mean(rows.map(d=>d.att)),my=avg,num=0,den=0;rows.forEach(d=>{num+=(d.att-mx)*(d.avg-my);den+=(d.att-mx)**2});let slope=den?num/den:0;
+ $("attendanceStory").textContent=n?`Story: The scatter plot shows how attendance and marks vary together in this sample. ${slope>0?"The overall direction is positive.":"The pattern is not clearly positive."} This does not prove that attendance alone causes higher marks. Study habits and many other factors may also matter.`:"Not enough records to describe a pattern.";
+ $("tableBody").innerHTML=rows.slice(0,15).map(d=>`<tr><td>${d.id}</td><td>${d.cls}</td><td>${d.att.toFixed(0)}%</td><td>${d.hrs.toFixed(1)}</td><td>${d.avg.toFixed(1)}</td><td><span class="pill">${d.group}</span></td></tr>`).join("");
+}
+$("classFilter").addEventListener("change",update);$("attFilter").addEventListener("input",update);$("reset").addEventListener("click",()=>{$("classFilter").value="All classes";$("attFilter").value=0;update()});
+window.addEventListener("resize",update);update();
+</script>
+</body></html>
